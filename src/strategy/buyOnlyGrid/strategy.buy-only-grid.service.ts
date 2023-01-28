@@ -86,7 +86,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
 
     log(LogLevels.INFO, 'buyonlygrid.enough-balance', [Strategies.BUY_ONLY_GRID]);
 
-    // this.initCycleStep();
+    this.initCycleStep();
   }
 
   private async updateQuoteAssetBalance() {
