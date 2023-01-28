@@ -1,0 +1,50 @@
+{
+  "name": "spotbot",
+  "version": "1.0.0",
+  "description": "Crypto trading bot by RVC",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts src",
+    "build": "tsc",
+    "prestart": "rimraf ./dist || true && npm run lint && npm run build && npm run copy-resources",
+    "copy-resources": "copyfiles -u 1 'src/**/*.{html,jpg,jpeg,png,css,json,wsdl,sql,cql}' 'dist/'",
+    "dev": "npm run copy-resources && tsc-watch --onSuccess \"node -r ./tsconfig-paths-dist.js dist/index.js --inspect\"",
+    "start": "npm run prestart && node -r ./tsconfig-paths-dist.js dist/index.js",
+    "test": "mocha -r ts-node/register -r tsconfig-paths/register src --recursive --extension .test.ts --exit"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "4.3.4",
+    "@types/i18n": "0.13.6",
+    "@types/mocha": "10.0.1",
+    "@types/node": "18.11.18",
+    "@types/sinon": "10.0.13",
+    "@typescript-eslint/eslint-plugin": "5.48.2",
+    "@typescript-eslint/parser": "5.48.2",
+    "chai": "4.3.7",
+    "chai-exclude": "2.1.0",
+    "copyfiles": "2.4.1",
+    "eslint": "8.32.0",
+    "eslint-config-prettier": "8.6.0",
+    "eslint-plugin-prettier": "4.2.1",
+    "mocha": "10.2.0",
+    "prettier": "2.8.3",
+    "sinon": "15.0.1",
+    "ts-node": "10.9.1",
+    "tsc-watch": "6.0.0",
+    "tsconfig-paths": "4.1.2",
+    "typescript": "4.9.4"
+  },
+  "dependencies": {
+    "@node-ts/bus-core": "1.0.13",
+    "@node-ts/bus-messages": "1.0.4",
+    "axios": "1.2.5",
+    "ccxt": "2.6.36",
+    "dotenv": "16.0.3",
+    "i18n": "0.15.1",
+    "reflect-metadata": "0.1.13",
+    "typedi": "0.10.0",
+    "winston": "3.8.2"
+  }
+}

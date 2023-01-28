@@ -1,0 +1,18 @@
+{
+    "exchange.service.executed": "Exchange {{0}} service {{1}} with arguments {{2}}, Result: {{3}}",
+    "exchange.service.error": "Exchange {{0}} service {{1}} with arguments {{2}}, Error: {{3}}",
+
+    "buyonlygrid.start": "Initiating {{0}} strategy...",
+    "buyonlygrid.enough-balance": "User has enough balance to execute {{0}} strategy, initiating cycle...",
+    "buyonlygrid.orders.cancelled": "Deleted open orders, initiating trading...",
+    "buyonlygrid.orders.sent": "Sent {{0}} {{1}} order at {{2}} with {{3}} {{4}}",
+    "buyonlygrid.orders.filled": "{{0}} {{1}} order filled successfully with {{2}} {{3}} at {{4}} price",
+
+    "buyonlygrid.error.pair-non-existent": "{{0}} pair does not exist in {{1}}",
+    "buyonlygrid.error.min-balance": "User does NOT have the minimum balance necessary. Balance must be at least: {{0}} {{1}}",
+    "buyonlygrid.error.no-balance-to-send-order": "Current balance {{0}} is less than minimum buy order size required ({{1}}), put more balance or wait sell order to be filled",
+
+    "buyonlygrid.state.update-state": "{{0}} strategy state update with order {{1}}: {{2}}",
+    "buyonlygrid.state.reconstruct-state": "{{0}} strategy state reconstructed: {{1}}",
+    "buyonlygrid.state.reconstructed": "Detected positions with base currency {{0}}, calculated current average price ({{1}}) based on orders history"
+}
