@@ -29,7 +29,7 @@ export async function sendMarketOrder(side: OrderSides, maxBuyOrderSize: number)
 
   const result = await exchange.createOrder({ pair: BUY_ONLY_GRID_TRADE_PAIR, type: OrderTypes.MARKET, side, size });
 
-  log(LogLevels.INFO, 'strategy.orders.sent', [side, OrderTypes.MARKET, result.price, result.amount, BASE_ASSET]);
+  log(LogLevels.INFO, 'strategy.orders.sent', [side, OrderTypes.MARKET, result.average, result.filled, BASE_ASSET]);
 }
 
 export function countDecimalPlaces(number: number) {

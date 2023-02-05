@@ -8,12 +8,15 @@ export function getSpecificAssetBalance(balances: PartialBalances, asset: string
   return balances?.[asset] ?? 0;
 }
 
-export function checkPairExistenceInMarket(markets: Market[], pair: string) {
-  return markets?.some((market) => market.symbol === pair);
+export function hasPair(markets: Market[], pair: string) {
+  const invertedPair = invertPair(pair);
+  return markets?.some((market) => market.symbol === pair || market.symbol === invertedPair);
 }
 
-export function checkPairsExistenceInMarket(markets: Market[], pairs: string[]) {
-  return markets ? pairs.filter((pair) => !markets.some((market) => market.symbol === pair)) : pairs;
+export function hasPairs(markets: Market[], pairs: string[]) {
+  return markets
+    ? pairs.filter((pair) => !markets.some((market) => market.symbol === pair || market.symbol === invertPair(pair)))
+    : pairs;
 }
 
 export function filterMarketByPairsWithAsset(markets: Market[], asset: string) {
@@ -30,6 +33,15 @@ export function filterOrdersHistoryBySide(orders: Order[], side: OrderSides) {
 
 export function filterOrdersHistoryByStatus(orders: Order[], status: OrderStatus) {
   return orders?.filter((order) => order.status === status);
+}
+
+export function makePair(baseAsset: string, quoteAsset: string) {
+  return `${baseAsset}/${quoteAsset}`;
+}
+
+export function invertPair(pair: string) {
+  const [invertedBase, invertedQuote] = pair.split('/').reverse();
+  return makePair(invertedBase, invertedQuote);
 }
 
 export function hasAsset(asset: string, pair: string) {

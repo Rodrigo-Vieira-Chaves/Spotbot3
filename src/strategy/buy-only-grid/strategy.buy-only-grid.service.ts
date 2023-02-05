@@ -7,7 +7,7 @@ import { BuyOnlyGridState } from './strategy.buy-only-grid.state';
 import { BASE_ASSET, QUOTE_ASSET } from '@core/env/load-env-data';
 import { OrderSides, OrderStatus } from '@exchange/exchange.model';
 import { Strategies, StrategyServices } from '@strategy/strategy.model';
-import { checkPairExistenceInMarket, getSpecificAssetBalance } from '@exchange/exchange.utils';
+import { hasPair, getSpecificAssetBalance, makePair } from '@exchange/exchange.utils';
 import {
   calculateMaxBuyOrderSize,
   calculateNextBuyPrice,
@@ -24,7 +24,7 @@ export const BUY_ONLY_GRID_FALL_TOLERANCE = 50;
 
 export const BUY_ONLY_GRID_MINIMUM_BALANCE = 350;
 
-export const BUY_ONLY_GRID_TRADE_PAIR = `${BASE_ASSET}/${QUOTE_ASSET}`;
+export const BUY_ONLY_GRID_TRADE_PAIR = makePair(BASE_ASSET, QUOTE_ASSET);
 
 @Service()
 export class StrategyBuyOnlyGridService implements StrategyServices {
@@ -33,7 +33,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   private baseAssetMinSize = 0;
 
   private runWatchOrders = true;
-  private isStopAfterTrade = false;
+  private isStopAfterTrade = true;
 
   constructor(private readonly gridState: BuyOnlyGridState) {}
 
@@ -41,7 +41,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
     log(LogLevels.INFO, 'strategy.start', [Strategies.BUY_ONLY_GRID]);
 
     const markets = await exchange.loadSpotMarket();
-    const isPairExistent = checkPairExistenceInMarket(markets, BUY_ONLY_GRID_TRADE_PAIR);
+    const isPairExistent = hasPair(markets, BUY_ONLY_GRID_TRADE_PAIR);
 
     if (!isPairExistent) {
       return log(LogLevels.ERROR, 'buy-only-grid.error.pair-non-existent', [
