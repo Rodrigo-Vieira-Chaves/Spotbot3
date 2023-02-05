@@ -15,5 +15,7 @@ export const API_SECRET = getEnvValue('API_SECRET');
 export const BASE_ASSET = getEnvValue('BASE_ASSET', Assets);
 export const QUOTE_ASSET = getEnvValue('QUOTE_ASSET', Assets);
 
+export const MAIN_ASSET = getEnvValue('MAIN_ASSET', Assets);
+
 export const NEW_RELIC_LICENSE = getEnvValue('NEW_RELIC_LICENSE');
 export const NEW_RELIC_LOG_ENDPOINT = getEnvValue('NEW_RELIC_LOG_ENDPOINT');

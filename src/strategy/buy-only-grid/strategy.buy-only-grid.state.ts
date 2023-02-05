@@ -23,7 +23,7 @@ export class BuyOnlyGridState {
     this.state.accumulatedPositionSize = parseFloat(this.state.accumulatedPositionSize.toFixed(baseAssetMinSize));
     this.state.currentAveragePrice = this.state.accumulatedPurchases / this.state.accumulatedPositionSize;
 
-    log(LogLevels.INFO, 'buyonlygrid.state.update-state', [Strategies.BUY_ONLY_GRID, order, this.state]);
+    log(LogLevels.INFO, 'buy-only-grid.state.update-state', [Strategies.BUY_ONLY_GRID, order, this.state]);
   }
 
   reconstructState(baseAssetBalance: number, ordersHistory: Order[], baseAssetMinSize: number) {
@@ -45,7 +45,7 @@ export class BuyOnlyGridState {
       }
     }
 
-    log(LogLevels.INFO, 'buyonlygrid.state.reconstruct-state', [Strategies.BUY_ONLY_GRID, this.state]);
+    log(LogLevels.INFO, 'buy-only-grid.state.reconstruct-state', [Strategies.BUY_ONLY_GRID, this.state]);
   }
 
   resetState() {

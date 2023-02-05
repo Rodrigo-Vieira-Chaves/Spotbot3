@@ -4,6 +4,8 @@ import { executeService, filterOrdersHistoryByStatus } from './exchange.utils';
 import { Dictionary, Market, Order, OrderBook, PartialBalances, pro as ccxt } from 'ccxt';
 import { ExchangeServices, OrderPost, OrderStatus, TakeProfitOrderPost } from './exchange.model';
 
+const ORDER_BOOK_LIMIT = 100;
+
 @Service()
 export class Binance implements ExchangeServices {
   private readonly exchange = new ccxt.binance({ newUpdates: true });
@@ -18,8 +20,16 @@ export class Binance implements ExchangeServices {
     return this.exchange.name;
   }
 
-  loadMarkets() {
-    return executeService<Dictionary<Market>>(this.exchange.loadMarkets.bind(this.exchange), []);
+  async loadSpotMarket() {
+    const markets = await executeService<Dictionary<Market>>(this.exchange.loadMarkets.bind(this.exchange), []);
+
+    return Object.values(markets).filter((market) => market.active && market.type === 'spot');
+  }
+
+  async loadFutureMarket() {
+    const markets = await executeService<Dictionary<Market>>(this.exchange.loadMarkets.bind(this.exchange), []);
+
+    return Object.values(markets).filter((market) => market.active && market.type === 'future');
   }
 
   fetchTotalBalance() {
@@ -67,6 +77,10 @@ export class Binance implements ExchangeServices {
 
   watchOrders(pair: string) {
     return executeService<Order[]>(this.exchange.watchOrders.bind(this.exchange), [pair]);
+  }
+
+  watchOrderBook(pair: string) {
+    return executeService<OrderBook>(this.exchange.watchOrderBook.bind(this.exchange), [pair, ORDER_BOOK_LIMIT]);
   }
 
   close() {

@@ -10,7 +10,7 @@ export class WinstonLogger implements Logger {
     this.logger = winston.createLogger({
       transports: [
         new winston.transports.Console({
-          level: 'debug',
+          level: 'info',
           format: winston.format.combine(
             winston.format.align(),
             winston.format.colorize(),

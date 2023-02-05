@@ -1,8 +1,9 @@
-import { Dictionary, Market, Order, OrderBook, PartialBalances } from 'ccxt';
+import { Market, Order, OrderBook, PartialBalances } from 'ccxt';
 
 export interface ExchangeServices {
   getName(): string;
-  loadMarkets(): Promise<Dictionary<Market>>;
+  loadSpotMarket(): Promise<Market[]>;
+  loadFutureMarket(): Promise<Market[]>;
   fetchTotalBalance(): Promise<PartialBalances>;
   fetchAllOrders(pair: string): Promise<Order[]>;
   fetchOpenOrders(pair: string): Promise<Order[]>;
@@ -12,6 +13,7 @@ export interface ExchangeServices {
   createTakeProfitOrder(order: TakeProfitOrderPost): Promise<Order>;
   cancelAllOrders(pair: string): Promise<Order[]>;
   watchOrders(pair: string): Promise<Order[]>;
+  watchOrderBook(pair: string): Promise<OrderBook>;
   close(): void;
 }
 
@@ -20,9 +22,10 @@ export enum Exchanges {
 }
 
 export enum Assets {
+  BNB = 'BNB',
   BTC = 'BTC',
-  ETH = 'ETH',
   BUSD = 'BUSD',
+  ETH = 'ETH',
   USDT = 'USDT',
 }
 

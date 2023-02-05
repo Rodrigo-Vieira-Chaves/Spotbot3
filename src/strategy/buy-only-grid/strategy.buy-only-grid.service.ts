@@ -18,13 +18,13 @@ import {
   sendMarketOrder,
 } from './strategy.buy-only-grid.utils';
 
-export const BUYONLYGRID_STOP_GAIN = 1.5;
-export const BUYONLYGRID_GRID_DISTANCE = 1.5;
-export const BUYONLYGRID_FALL_TOLERANCE = 50;
+export const BUY_ONLY_GRID_STOP_GAIN = 1.5;
+export const BUY_ONLY_GRID_GRID_DISTANCE = 1.5;
+export const BUY_ONLY_GRID_FALL_TOLERANCE = 50;
 
-export const BUYONLYGRID_MINIMUM_BALANCE = 350;
+export const BUY_ONLY_GRID_MINIMUM_BALANCE = 350;
 
-export const BUYONLYGRID_TRADE_PAIR = `${BASE_ASSET}/${QUOTE_ASSET}`;
+export const BUY_ONLY_GRID_TRADE_PAIR = `${BASE_ASSET}/${QUOTE_ASSET}`;
 
 @Service()
 export class StrategyBuyOnlyGridService implements StrategyServices {
@@ -38,16 +38,19 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   constructor(private readonly gridState: BuyOnlyGridState) {}
 
   async start() {
-    log(LogLevels.INFO, 'buyonlygrid.start', [Strategies.BUY_ONLY_GRID]);
+    log(LogLevels.INFO, 'strategy.start', [Strategies.BUY_ONLY_GRID]);
 
-    const markets = await exchange.loadMarkets();
-    const isPairExistent = checkPairExistenceInMarket(markets, BUYONLYGRID_TRADE_PAIR);
+    const markets = await exchange.loadSpotMarket();
+    const isPairExistent = checkPairExistenceInMarket(markets, BUY_ONLY_GRID_TRADE_PAIR);
 
     if (!isPairExistent) {
-      return log(LogLevels.ERROR, 'buyonlygrid.error.pair-non-existent', [BUYONLYGRID_TRADE_PAIR, exchange.getName()]);
+      return log(LogLevels.ERROR, 'buy-only-grid.error.pair-non-existent', [
+        BUY_ONLY_GRID_TRADE_PAIR,
+        exchange.getName(),
+      ]);
     }
 
-    this.baseAssetMinSize = countDecimalPlaces(markets[BUYONLYGRID_TRADE_PAIR].limits.amount.min);
+    this.baseAssetMinSize = countDecimalPlaces(markets[BUY_ONLY_GRID_TRADE_PAIR].limits.amount.min);
 
     const balances = await exchange.fetchTotalBalance();
     const baseAssetBalance = getSpecificAssetBalance(balances, BASE_ASSET);
@@ -64,11 +67,11 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   }
 
   private async reconstructState(baseAssetBalance: number) {
-    const ordersHistory = await exchange.fetchClosedOrders(BUYONLYGRID_TRADE_PAIR);
+    const ordersHistory = await exchange.fetchClosedOrders(BUY_ONLY_GRID_TRADE_PAIR);
 
     this.gridState.reconstructState(baseAssetBalance, ordersHistory, this.baseAssetMinSize);
 
-    log(LogLevels.INFO, 'buyonlygrid.state.reconstructed', [BASE_ASSET, this.gridState.state.currentAveragePrice]);
+    log(LogLevels.INFO, 'buy-only-grid.state.reconstructed', [BASE_ASSET, this.gridState.state.currentAveragePrice]);
   }
 
   private async initCycle() {
@@ -78,13 +81,13 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
       this.currentBalance += this.gridState.state.accumulatedPurchases;
     }
 
-    if (!this.currentBalance || this.currentBalance < BUYONLYGRID_MINIMUM_BALANCE) {
-      return log(LogLevels.ERROR, 'buyonlygrid.error.min-balance', [BUYONLYGRID_MINIMUM_BALANCE, QUOTE_ASSET]);
+    if (!this.currentBalance || this.currentBalance < BUY_ONLY_GRID_MINIMUM_BALANCE) {
+      return log(LogLevels.ERROR, 'buy-only-grid.error.min-balance', [BUY_ONLY_GRID_MINIMUM_BALANCE, QUOTE_ASSET]);
     }
 
     this.maxBuyOrderSize = calculateMaxBuyOrderSize(this.currentBalance);
 
-    log(LogLevels.INFO, 'buyonlygrid.enough-balance', [Strategies.BUY_ONLY_GRID]);
+    log(LogLevels.INFO, 'strategy.enough-balance', [Strategies.BUY_ONLY_GRID]);
 
     this.initCycleStep();
   }
@@ -95,9 +98,9 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   }
 
   private async initCycleStep() {
-    await exchange.cancelAllOrders(BUYONLYGRID_TRADE_PAIR);
+    await exchange.cancelAllOrders(BUY_ONLY_GRID_TRADE_PAIR);
 
-    log(LogLevels.INFO, 'buyonlygrid.orders.cancelled', []);
+    log(LogLevels.INFO, 'strategy.orders.cancelled', []);
 
     if (this.gridState.state.buyOrdersFilled <= 0) {
       return sendMarketOrder(OrderSides.BUY, this.maxBuyOrderSize);
@@ -106,7 +109,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
     if (this.currentBalance >= this.maxBuyOrderSize) {
       await this.sendNextBuyOrder();
     } else {
-      log(LogLevels.WARN, 'buyonlygrid.error.no-balance-to-send-order', [this.currentBalance, this.maxBuyOrderSize]);
+      log(LogLevels.WARN, 'buy-only-grid.error.no-balance-to-send-order', [this.currentBalance, this.maxBuyOrderSize]);
     }
 
     const nextSellPrice = calculateNextSellPrice(this.gridState.state.currentAveragePrice);
@@ -122,7 +125,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
 
   private async watchOrders() {
     while (this.runWatchOrders) {
-      const result = await exchange.watchOrders(BUYONLYGRID_TRADE_PAIR);
+      const result = await exchange.watchOrders(BUY_ONLY_GRID_TRADE_PAIR);
       this.processReceivedOrder(result?.pop());
     }
   }
@@ -132,7 +135,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
       return;
     }
 
-    log(LogLevels.INFO, 'buyonlygrid.orders.filled', [order.side, order.type, order.filled, BASE_ASSET, order.average]);
+    log(LogLevels.INFO, 'strategy.orders.filled', [order.side, order.type, order.filled, BASE_ASSET, order.average]);
 
     if (order.side === OrderSides.BUY) {
       return this.processBuyFilledOrder(order);
@@ -163,7 +166,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   }
 
   async stop() {
-    await exchange.cancelAllOrders(BUYONLYGRID_TRADE_PAIR);
+    await exchange.cancelAllOrders(BUY_ONLY_GRID_TRADE_PAIR);
     this.runWatchOrders = false;
     exchange.close();
   }

@@ -1,15 +1,27 @@
 import { log } from '@core/log/log';
 import { exchange } from './exchange.factory';
 import { LogLevels } from '@core/log/log.model';
+import { Market, Order, PartialBalances } from 'ccxt';
 import { OrderSides, OrderStatus } from './exchange.model';
-import { Dictionary, Market, Order, PartialBalances } from 'ccxt';
-
-export function checkPairExistenceInMarket(markets: Dictionary<Market>, pair: string) {
-  return markets ? Object.keys(markets).includes(pair) : false;
-}
 
 export function getSpecificAssetBalance(balances: PartialBalances, asset: string) {
   return balances?.[asset] ?? 0;
+}
+
+export function checkPairExistenceInMarket(markets: Market[], pair: string) {
+  return markets?.some((market) => market.symbol === pair);
+}
+
+export function checkPairsExistenceInMarket(markets: Market[], pairs: string[]) {
+  return markets ? pairs.filter((pair) => !markets.some((market) => market.symbol === pair)) : pairs;
+}
+
+export function filterMarketByPairsWithAsset(markets: Market[], asset: string) {
+  return markets?.filter((market) => hasAsset(asset, market.symbol));
+}
+
+export function filterMarketByPairsWithoutAsset(markets: Market[], asset: string) {
+  return markets?.filter((market) => !hasAsset(asset, market.symbol));
 }
 
 export function filterOrdersHistoryBySide(orders: Order[], side: OrderSides) {
@@ -18,6 +30,26 @@ export function filterOrdersHistoryBySide(orders: Order[], side: OrderSides) {
 
 export function filterOrdersHistoryByStatus(orders: Order[], status: OrderStatus) {
   return orders?.filter((order) => order.status === status);
+}
+
+export function hasAsset(asset: string, pair: string) {
+  return pair?.split('/').includes(asset);
+}
+
+export function isBaseAsset(asset: string, pair: string) {
+  return pair?.split('/')[0] === asset;
+}
+
+export function getBaseAsset(pair: string) {
+  return pair?.split('/')[0];
+}
+
+export function getQuoteAsset(pair: string) {
+  return pair?.split('/')[1];
+}
+
+export function getOppositeAsset(asset: string, pair: string) {
+  return isBaseAsset(asset, pair) ? getQuoteAsset(pair) : getBaseAsset(pair);
 }
 
 export async function executeService<T>(service: (...args: any) => Promise<T>, parameters: any[]) {

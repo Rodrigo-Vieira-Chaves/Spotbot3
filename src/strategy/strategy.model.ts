@@ -6,4 +6,5 @@ export interface StrategyServices {
 
 export enum Strategies {
   BUY_ONLY_GRID = 'BUY_ONLY_GRID',
+  TRIANGULAR_ARBITRAGE = 'TRIANGULAR_ARBITRAGE',
 }
