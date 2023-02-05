@@ -13,7 +13,6 @@ import {
   calculateNextBuyPrice,
   calculateNextBuySize,
   calculateNextSellPrice,
-  countDecimalPlaces,
   sendLimitOrder,
   sendMarketOrder,
 } from './strategy.buy-only-grid.utils';
@@ -30,12 +29,11 @@ export const BUY_ONLY_GRID_TRADE_PAIR = makePair(BASE_ASSET, QUOTE_ASSET);
 export class StrategyBuyOnlyGridService implements StrategyServices {
   private currentBalance = 0;
   private maxBuyOrderSize = 0;
-  private baseAssetMinSize = 0;
 
   private runWatchOrders = true;
   private isStopAfterTrade = true;
 
-  constructor(private readonly gridState: BuyOnlyGridState) {}
+  private gridState: BuyOnlyGridState;
 
   async start() {
     log(LogLevels.INFO, 'strategy.start', [Strategies.BUY_ONLY_GRID]);
@@ -50,7 +48,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
       ]);
     }
 
-    this.baseAssetMinSize = countDecimalPlaces(markets[BUY_ONLY_GRID_TRADE_PAIR].limits.amount.min);
+    this.gridState = new BuyOnlyGridState(markets);
 
     const balances = await exchange.fetchTotalBalance();
     const baseAssetBalance = getSpecificAssetBalance(balances, BASE_ASSET);
@@ -69,7 +67,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   private async reconstructState(baseAssetBalance: number) {
     const ordersHistory = await exchange.fetchClosedOrders(BUY_ONLY_GRID_TRADE_PAIR);
 
-    this.gridState.reconstructState(baseAssetBalance, ordersHistory, this.baseAssetMinSize);
+    this.gridState.reconstructState(baseAssetBalance, ordersHistory);
 
     log(LogLevels.INFO, 'buy-only-grid.state.reconstructed', [BASE_ASSET, this.gridState.state.currentAveragePrice]);
   }
@@ -150,7 +148,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
     }
 
     await this.updateQuoteAssetBalance();
-    this.gridState.updateState(order, this.baseAssetMinSize);
+    this.gridState.updateState(order);
 
     return this.initCycleStep();
   }

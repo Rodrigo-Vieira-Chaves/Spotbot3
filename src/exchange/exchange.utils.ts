@@ -19,6 +19,10 @@ export function hasPairs(markets: Market[], pairs: string[]) {
     : pairs;
 }
 
+export function getPairMinSize(markets: Market[], pair: string) {
+  return markets?.find((market) => market.symbol === pair).limits.amount.min;
+}
+
 export function filterMarketByPairsWithAsset(markets: Market[], asset: string) {
   return markets?.filter((market) => hasAsset(asset, market.symbol));
 }
