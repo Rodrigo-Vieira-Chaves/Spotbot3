@@ -51,6 +51,7 @@ export interface OrderPost {
   side: OrderSides;
   size: number;
   price?: number;
+  params?: any;
 }
 
 export interface TakeProfitOrderPost extends OrderPost {

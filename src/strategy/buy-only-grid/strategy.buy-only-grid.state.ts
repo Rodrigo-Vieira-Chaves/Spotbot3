@@ -4,8 +4,7 @@ import { LogLevels } from '@core/log/log.model';
 import { OrderSides } from '@exchange/exchange.model';
 import { Strategies } from '@strategy/strategy.model';
 import { BUY_ONLY_GRID_TRADE_PAIR } from './strategy.buy-only-grid.service';
-import { filterOrdersHistoryBySide, getPairMinSize } from '@exchange/exchange.utils';
-import { countDecimalPlaces } from './strategy.buy-only-grid.utils';
+import { countDecimalPlaces, filterOrdersHistoryBySide, getPairMinSize } from '@exchange/exchange.utils';
 
 export class BuyOnlyGridState {
   public readonly state = {

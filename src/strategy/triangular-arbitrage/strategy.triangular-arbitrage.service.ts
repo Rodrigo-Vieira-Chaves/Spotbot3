@@ -11,7 +11,7 @@ const MINIMUM_PROFIT = 0.01;
 @Service()
 export class StrategyTriangularArbitrageService implements StrategyServices {
   private isRunning = true;
-  private mainAssetBalance = 350;
+  private mainAssetBalance = 380;
   private isStopAfterTrade = false;
 
   private triangularOrderBooks: TriangularOrderBooks;
@@ -46,13 +46,15 @@ export class StrategyTriangularArbitrageService implements StrategyServices {
       return sleep();
     }
 
-    // const result = await this.triangularOrderBooks.executeTrade(this.mainAssetBalance);
+    const result = await this.triangularOrderBooks.executeTrade(this.mainAssetBalance);
 
-    console.log(`Trade executed, Real Result: ${0} vs PotentialProfit: ${potentialProfit}`);
+    console.log(`Trade executed, Real Result: ${result} vs PotentialProfit: ${potentialProfit}`);
 
     if (this.isStopAfterTrade) {
       this.stop();
     }
+
+    return sleep();
   }
 
   stop() {

@@ -32,10 +32,6 @@ export async function sendMarketOrder(side: OrderSides, maxBuyOrderSize: number)
   log(LogLevels.INFO, 'strategy.orders.sent', [side, OrderTypes.MARKET, result.average, result.filled, BASE_ASSET]);
 }
 
-export function countDecimalPlaces(number: number) {
-  return -Math.log10(number);
-}
-
 export function calculateMaxBuyOrderSize(currentBalance: number) {
   return currentBalance / (BUY_ONLY_GRID_FALL_TOLERANCE / BUY_ONLY_GRID_GRID_DISTANCE);
 }

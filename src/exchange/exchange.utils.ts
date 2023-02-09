@@ -9,18 +9,24 @@ export function getSpecificAssetBalance(balances: PartialBalances, asset: string
 }
 
 export function hasPair(markets: Market[], pair: string) {
-  const invertedPair = invertPair(pair);
-  return markets?.some((market) => market.symbol === pair || market.symbol === invertedPair);
+  return markets?.some((market) => market.symbol === pair);
 }
 
 export function hasPairs(markets: Market[], pairs: string[]) {
-  return markets
-    ? pairs.filter((pair) => !markets.some((market) => market.symbol === pair || market.symbol === invertPair(pair)))
-    : pairs;
+  return markets ? pairs.filter((pair) => !markets.some((market) => market.symbol === pair)) : pairs;
 }
 
 export function getPairMinSize(markets: Market[], pair: string) {
   return markets?.find((market) => market.symbol === pair).limits.amount.min;
+}
+
+export function formatQtyOnPairMinSize(qty: number, minSize: number) {
+  const mult = 10 ** countDecimalPlaces(minSize);
+  return Math.floor(qty * mult) / mult;
+}
+
+export function countDecimalPlaces(number: number) {
+  return -Math.log10(number);
 }
 
 export function filterMarketByPairsWithAsset(markets: Market[], asset: string) {
@@ -41,11 +47,6 @@ export function filterOrdersHistoryByStatus(orders: Order[], status: OrderStatus
 
 export function makePair(baseAsset: string, quoteAsset: string) {
   return `${baseAsset}/${quoteAsset}`;
-}
-
-export function invertPair(pair: string) {
-  const [invertedBase, invertedQuote] = pair.split('/').reverse();
-  return makePair(invertedBase, invertedQuote);
 }
 
 export function hasAsset(asset: string, pair: string) {

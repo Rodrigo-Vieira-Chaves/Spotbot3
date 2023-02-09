@@ -3,17 +3,19 @@ import { MAIN_ASSET } from '@core/env/load-env-data';
 import { OrderSides } from '@exchange/exchange.model';
 import { exchange } from '@exchange/exchange.factory';
 import { sendMarketOrder } from './strategy.triangular-arbitrage.utils';
-import { getOppositeAsset, isBaseAsset } from '@exchange/exchange.utils';
+import { formatQtyOnPairMinSize, getOppositeAsset, isBaseAsset } from '@exchange/exchange.utils';
+
+export type TriangularPair = { [pair: string]: number };
 
 export class TriangularOrderBooks {
   private readonly orderBooks: { [pair: string]: Book } = {};
 
-  constructor(triangularPairs: string[]) {
-    for (const triangularPair of triangularPairs) {
-      const newOrderBook = new Book(triangularPair);
+  constructor(triangularPair: TriangularPair) {
+    for (const pair in triangularPair) {
+      const newOrderBook = new Book(pair, triangularPair[pair]);
       newOrderBook.updateBook();
 
-      this.orderBooks[triangularPair] = newOrderBook;
+      this.orderBooks[pair] = newOrderBook;
     }
   }
 
@@ -30,11 +32,10 @@ export class TriangularOrderBooks {
 
   async executeTrade(balance: number, asset = MAIN_ASSET) {
     for (const pair in this.orderBooks) {
-      const result = await (isBaseAsset(asset, pair)
-        ? sendMarketOrder(pair, OrderSides.SELL, balance)
-        : sendMarketOrder(pair, OrderSides.BUY, balance));
+      balance = isBaseAsset(asset, pair)
+        ? (await sendMarketOrder(pair, OrderSides.SELL, balance)).cost
+        : (await sendMarketOrder(pair, OrderSides.BUY, balance)).filled;
 
-      balance = result.filled;
       asset = getOppositeAsset(asset, pair);
     }
 
@@ -54,7 +55,7 @@ class Book {
   private isRunning = false;
   private readonly orderBook: OrderBook[] = [];
 
-  constructor(private readonly pair: string) {}
+  constructor(private readonly pair: string, private readonly minSize: number) {}
 
   async updateBook() {
     this.isRunning = true;
@@ -76,7 +77,7 @@ class Book {
 
   simulateMarketBuy(quoteBalance: number) {
     let baseBalance = 0;
-    const asks = this.orderBook.pop()?.asks;
+    const asks = this.orderBook.at(-1)?.asks;
 
     if (!asks || quoteBalance <= 0) {
       return 0;
@@ -89,7 +90,7 @@ class Book {
       const quoteSize = price * baseSize;
 
       if (quoteSize >= quoteBalance) {
-        return quoteBalance / price + baseBalance;
+        return formatQtyOnPairMinSize(quoteBalance / price + baseBalance, this.minSize);
       }
 
       quoteBalance -= quoteSize;
@@ -99,11 +100,13 @@ class Book {
 
   simulateMarketSell(baseBalance: number) {
     let quoteBalance = 0;
-    const bids = this.orderBook.pop()?.bids;
+    const bids = this.orderBook.at(-1)?.bids;
 
     if (!bids || baseBalance <= 0) {
       return 0;
     }
+
+    baseBalance = formatQtyOnPairMinSize(baseBalance, this.minSize);
 
     for (const bid of bids) {
       const price = bid[0];
