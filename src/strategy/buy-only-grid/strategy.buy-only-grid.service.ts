@@ -31,7 +31,7 @@ export class StrategyBuyOnlyGridService implements StrategyServices {
   private maxBuyOrderSize = 0;
 
   private runWatchOrders = true;
-  private isStopAfterTrade = true;
+  private isStopAfterTrade = false;
 
   private gridState: BuyOnlyGridState;
 

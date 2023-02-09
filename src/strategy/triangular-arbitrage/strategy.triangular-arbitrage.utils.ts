@@ -1,6 +1,4 @@
-// import { log } from 'winston';
 import { Market } from 'ccxt';
-// import { LogLevels } from '@core/log/log.model';
 import { MAIN_ASSET } from '@core/env/load-env-data';
 import { exchange } from '@exchange/exchange.factory';
 import { OrderSides, OrderTypes } from '@exchange/exchange.model';
@@ -22,7 +20,6 @@ export function sleep(ms = 100) {
 
 export async function sendMarketOrder(pair: string, side: OrderSides, size: number) {
   const result = await exchange.createOrder({ pair, type: OrderTypes.MARKET, side, size });
-  // log(LogLevels.INFO, 'strategy.orders.sent', [side, OrderTypes.MARKET, result.average, result.amount, pair]);
   console.log(
     text('strategy.orders.sent', { ...[side, OrderTypes.MARKET, result.average, result.amount, pair] } as any),
   );

@@ -2,14 +2,7 @@ import { Service } from 'typedi';
 import { API_KEY, API_SECRET, EXCHANGE_TEST_NET } from '@core/env/load-env-data';
 import { executeService, filterOrdersHistoryByStatus } from './exchange.utils';
 import { Dictionary, Market, Order, OrderBook, PartialBalances, pro as ccxt } from 'ccxt';
-import {
-  ExchangeServices,
-  OrderPost,
-  OrderSides,
-  OrderStatus,
-  OrderTypes,
-  TakeProfitOrderPost,
-} from './exchange.model';
+import { ExchangeServices, OrderPost, OrderStatus, TakeProfitOrderPost } from './exchange.model';
 
 const ORDER_BOOK_LIMIT = 100;
 
@@ -62,11 +55,6 @@ export class Binance implements ExchangeServices {
   }
 
   createOrder(order: OrderPost) {
-    if (order.type === OrderTypes.MARKET && order.side === OrderSides.BUY) {
-      order.price = 0;
-      order.params = { quoteOrderQty: order.size };
-    }
-
     return executeService<Order>(this.exchange.createOrder.bind(this.exchange), Object.values(order));
   }
 
